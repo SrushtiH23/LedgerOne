@@ -1,0 +1,18 @@
+# Build files
+build/
+
+# VS Code
+.vscode/
+
+# CMake
+CMakeUserPresets.json
+
+# Executables
+*.exe
+*.o
+*.obj
+*.dll
+
+# SQLite temporary files
+*.db-shm
+*.db-wal
