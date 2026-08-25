@@ -40,8 +40,18 @@ bool Database::connect(const string& dbPath) {
     }
 
     int rc = sqlite3_open(dbPath.c_str(), &db);
-    if (rc != SQLITE_OK) {
-        cerr << "  [ERROR] Cannot open database: " << sqlite3_errmsg(db) << endl;
+
+    if (rc != SQLITE_OK)
+    {
+        cerr << "  [ERROR] Cannot open database: "
+            << sqlite3_errmsg(db) << endl;
+
+        if (db)
+        {
+            sqlite3_close(db);
+            db = nullptr;
+        }
+
         return false;
     }
 
@@ -65,6 +75,22 @@ void Database::disconnect() {
 // ─── Is Connected ───────────────────────────────────────────────────────────
 bool Database::isConnected() const {
     return connected;
+}
+// ─── Database Transaction Management ───────────────────────────────────────
+
+bool Database::beginTransaction()
+{
+    return executeUpdate("BEGIN TRANSACTION;");
+}
+
+bool Database::commitTransaction()
+{
+    return executeUpdate("COMMIT;");
+}
+
+bool Database::rollbackTransaction()
+{
+    return executeUpdate("ROLLBACK;");
 }
 
 // ─── Execute UPDATE / INSERT / DELETE ───────────────────────────────────────

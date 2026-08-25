@@ -20,6 +20,11 @@ public:
     void disconnect();
     bool isConnected() const;
 
+    // Database transaction management
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
+
     // SQL execution
     bool executeUpdate(const std::string& sql);
     std::vector<std::vector<std::string>> executeQuery(const std::string& sql);

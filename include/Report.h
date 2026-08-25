@@ -33,11 +33,7 @@ public:
     // Business Reports
     void profitReport();
     void customerReport();
-    void supplierReport();
-    void gstReport();
-
-    // Analytics
-    void topSellingProducts(int limit = 5);
+    
 
     // Custom Reports
     void salesByDateRange();

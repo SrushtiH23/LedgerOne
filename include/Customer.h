@@ -2,7 +2,7 @@
 #define CUSTOMER_H
 
 #include "Database.h"
-#include <string>
+
 
 class Customer
 {

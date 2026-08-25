@@ -131,6 +131,31 @@ void Report::inventoryReport()
         rows
     );
 }
+// ─── Low Stock Report ───────────────────────────────────────────────────────
+void Report::lowStockReport()
+{
+    const int LOW_STOCK_THRESHOLD = 5;
+
+    auto rows = db.executeQuery(
+        "SELECT id, name, stock "
+        "FROM product "
+        "WHERE stock <= " + std::to_string(LOW_STOCK_THRESHOLD) + " "
+        "ORDER BY stock ASC;"
+    );
+
+    std::cout << "\nLOW STOCK REPORT\n";
+
+    if (rows.empty())
+    {
+        std::cout << "All products have sufficient stock.\n";
+        return;
+    }
+
+    printTable(
+        {"ID", "Product", "Stock"},
+        rows
+    );
+}
 // ─── Customer Report ────────────────────────────────────────────────────────
 void Report::customerReport()
 {
@@ -178,6 +203,41 @@ void Report::profitReport()
 
     divider();
 }
+void Report::salesByDateRange()
+{
+    std::string startDate;
+    std::string endDate;
+
+    std::cout << "\nSALES BY DATE RANGE\n";
+    divider();
+
+    std::cout << "Enter start date (YYYY-MM-DD): ";
+    std::cin >> startDate;
+
+    std::cout << "Enter end date (YYYY-MM-DD): ";
+    std::cin >> endDate;
+
+    auto rows = db.executeQuery(
+        "SELECT id, customer_id, product_id, quantity, amount, date "
+        "FROM transactions "
+        "WHERE type = 'SALE' "
+        "AND date(date) BETWEEN '"
+        + startDate + "' AND '"
+        + endDate + "' "
+        "ORDER BY date;"
+    );
+
+    if (rows.empty())
+    {
+        std::cout << "\nNo sales found in this date range.\n";
+        return;
+    }
+
+    printTable(
+        {"ID", "Customer", "Product", "Qty", "Amount", "Date"},
+        rows
+    );
+}
 // ─── Report Menu ────────────────────────────────────────────────────────────
 void Report::showReportMenu()
 {
@@ -196,8 +256,10 @@ void Report::showReportMenu()
         std::cout << "2. Monthly Sales\n";
         std::cout << "3. Today's Purchases\n";
         std::cout << "4. Inventory Report\n";
-        std::cout << "5. Customer Report\n";
-        std::cout << "6. Profit Report\n";
+        std::cout << "5. Low Stock Report\n";
+        std::cout << "6. Customer Report\n";
+        std::cout << "7. Profit Report\n";
+        std::cout << "8. Sales By Date Range\n";
         std::cout << "0. Back\n";
 
         divider();
@@ -207,15 +269,22 @@ void Report::showReportMenu()
 
         switch(choice)
         {
-            case 1: todaysSales(); break;
-            case 2: monthlySales(); break;
-            case 3: todaysPurchases(); break;
-            case 4: inventoryReport(); break;
-            case 5: customerReport(); break;
-            case 6: profitReport(); break;
-            case 0: break;
-            default:
-                std::cout << "\nInvalid Choice.\n";
+            switch(choice)
+            {
+                case 1: todaysSales(); break;
+                case 2: monthlySales(); break;
+                case 3: todaysPurchases(); break;
+                case 4: inventoryReport(); break;
+                case 5: lowStockReport(); break;
+                case 6: customerReport(); break;
+                case 7: profitReport(); break;
+                case 8:salesByDateRange();break;
+
+                case 0: break;
+
+                default:
+                    std::cout << "\nInvalid Choice.\n";
+            }
         }
 
     } while(choice != 0);

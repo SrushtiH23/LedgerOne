@@ -46,11 +46,14 @@ int Transaction::saveTransaction(
     (void)gstAmount;
     (void)discount;
 
+    std::string customerValue =
+        customerId == 0 ? "NULL" : std::to_string(customerId);
+
     std::string sql =
         "INSERT INTO transactions "
         "(customer_id, product_id, quantity, amount, type) "
         "VALUES ("
-        + std::to_string(customerId)
+        + customerValue
         + ", "
         + std::to_string(productId)
         + ", "
@@ -132,9 +135,19 @@ void Transaction::makeSale()
     }
 
     double total = quantity * price;
-        // Update stock
-    if(!updateStock(productId, -quantity))
+
+    // Start database transaction
+    if (!db.beginTransaction())
     {
+        std::cout << "\n  [ERROR] Failed to start database transaction.\n";
+        return;
+    }
+
+    // Reduce stock
+    if (!updateStock(productId, -quantity))
+    {
+        db.rollbackTransaction();
+
         std::cout << "\n  [ERROR] Failed to update stock.\n";
         return;
     }
@@ -152,12 +165,20 @@ void Transaction::makeSale()
         "SALE"
     );
 
-    if(transactionId < 0)
+    if (transactionId < 0)
     {
+        db.rollbackTransaction();
+
         std::cout << "\n  [ERROR] Failed to save transaction.\n";
         return;
     }
 
+    // Commit all changes
+    if (!db.commitTransaction())
+    {
+        std::cout << "\n  [ERROR] Failed to commit transaction.\n";
+        return;
+    }
     divider();
 
     std::cout << "  Sale Successful\n";
@@ -215,21 +236,40 @@ void Transaction::makePurchase()
     }
 
     double total = quantity * buyingPrice;
-        // Increase stock
-    if(!updateStock(productId, quantity))
+      
+
+    // Start database transaction
+    if (!db.beginTransaction())
     {
+        std::cout << "\n  [ERROR] Failed to start database transaction.\n";
+        return;
+    }
+
+    // Increase stock
+    if (!updateStock(productId, quantity))
+    {
+        db.rollbackTransaction();
+
         std::cout << "\n  [ERROR] Failed to update stock.\n";
         return;
     }
 
     // Update buying price
-    db.executeUpdate(
+    bool priceUpdated = db.executeUpdate(
         "UPDATE product SET buying_price = "
         + std::to_string(buyingPrice)
         + " WHERE id = "
         + std::to_string(productId)
         + ";"
     );
+
+    if (!priceUpdated)
+    {
+        db.rollbackTransaction();
+
+        std::cout << "\n  [ERROR] Failed to update buying price.\n";
+        return;
+    }
 
     // Save transaction
     int transactionId = saveTransaction(
@@ -244,11 +284,22 @@ void Transaction::makePurchase()
         "PURCHASE"
     );
 
-    if(transactionId < 0)
+    if (transactionId < 0)
     {
+        db.rollbackTransaction();
+
         std::cout << "\n  [ERROR] Failed to save purchase.\n";
         return;
     }
+
+    // Commit all changes
+    if (!db.commitTransaction())
+    {
+        std::cout << "\n  [ERROR] Failed to commit transaction.\n";
+        return;
+    }
+
+    
 
     divider();
 

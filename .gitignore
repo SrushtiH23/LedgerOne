@@ -16,3 +16,7 @@ CMakeUserPresets.json
 # SQLite temporary files
 *.db-shm
 *.db-wal
+
+# OS files
+Thumbs.db
+.DS_Store
