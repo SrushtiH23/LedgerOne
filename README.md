@@ -1,10 +1,11 @@
 # LedgerOne - Mini ERP System
 
-LedgerOne is a terminal-based Enterprise Resource Planning (ERP) system developed in **C++** using **SQLite3** for persistent data storage. It provides core business management features such as customer management, product inventory, transactions, and reporting.
+LedgerOne is a terminal-based Enterprise Resource Planning (ERP) system developed in **C++** using **SQLite3** for persistent data storage. It provides core business management features such as customer management, product inventory, sales and purchase transactions, and reporting.
 
 ## Features
 
 ### Customer Management
+
 - Add customer
 - View customers
 - Search customer
@@ -12,6 +13,7 @@ LedgerOne is a terminal-based Enterprise Resource Planning (ERP) system develope
 - Delete customer
 
 ### Product Management
+
 - Add product
 - View products
 - Search product
@@ -19,16 +21,23 @@ LedgerOne is a terminal-based Enterprise Resource Planning (ERP) system develope
 - Delete product
 
 ### Transactions
-- Sales management
-- Purchase management
+
+- Create new sales
+- Create new purchases
+- Automatically update product stock
+- Store transaction records in the database
+- Use database transactions to maintain data consistency
 
 ### Reports
+
 - Today's Sales
 - Monthly Sales
 - Today's Purchases
 - Inventory Report
+- Low Stock Report
 - Customer Report
 - Profit Report
+- Sales by Date Range
 
 ## Tech Stack
 
@@ -40,7 +49,7 @@ LedgerOne is a terminal-based Enterprise Resource Planning (ERP) system develope
 
 ## Project Structure
 
-```
+```text
 LedgerOne/
 │── include/            # Header files
 │── src/                # Source files
@@ -55,15 +64,30 @@ LedgerOne/
 
 ### Prerequisites
 
+Make sure the following are installed:
+
 - GCC (MSYS2 UCRT64)
 - CMake
-- SQLite3 (included)
+
+SQLite3 is included with the project under:
+
+```text
+thirdparty/sqlite/
+```
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/SrushtiH23/LedgerOne.git
+cd LedgerOne
+```
 
 ### Configure
 
 ```bash
 mkdir build
 cd build
+
 cmake .. -G "MinGW Makefiles" \
 -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe \
 -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe
@@ -77,11 +101,27 @@ cmake --build .
 
 ### Run
 
+From the `build` directory:
+
 ```bash
 ./LedgerOne.exe
 ```
 
+## Transaction Handling
 
+Sales and purchases use SQLite database transactions to maintain data consistency.
+
+For example, when creating a sale:
+
+1. Product availability is checked.
+2. A database transaction is started.
+3. Product stock is reduced.
+4. The transaction record is saved.
+5. Changes are committed.
+
+If any operation fails before completion, the transaction is rolled back to prevent partial updates.
+
+The purchase workflow follows a similar process for updating stock, buying price, and transaction records.
 
 ## Future Improvements
 
@@ -91,9 +131,10 @@ cmake --build .
 - PDF invoice export
 - User authentication
 - Dashboard analytics
-- Backup & restore
+- Backup and restore
 - CSV export
 - Barcode support
+- Supplier management
 
 ## Learning Outcomes
 
@@ -101,11 +142,16 @@ This project helped me understand:
 
 - Object-Oriented Programming
 - Modular C++ project architecture
+- Header and source file separation
 - CMake build system
 - SQLite database integration
-- File organization
 - CRUD operations
+- SQL queries
+- Database transactions
+- Commit and rollback
+- Inventory management
 - Menu-driven application design
+- Input validation
 
 ## Author
 
